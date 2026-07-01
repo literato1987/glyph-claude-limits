@@ -20,4 +20,6 @@ Setup: paste `jq '.claudeAiOauth' ~/.claude/.credentials.json` into the app once
 
 Built with the official [Glyph Matrix Developer Kit](https://github.com/Nothing-Developer-Programme/GlyphMatrix-Developer-Kit). Not affiliated with Anthropic.
 
-Reply in: https://nothing.community/d/40994-community-glyph-matrix-toys-collection
+**Published on nothing.community:** https://nothing.community/d/40994-community-glyph-matrix-toys-collection/21 (edited post #291100 — forum blocks consecutive replies)
+
+Reply thread: https://nothing.community/d/40994-community-glyph-matrix-toys-collection
