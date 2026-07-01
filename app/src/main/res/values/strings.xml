@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Claude Glyph Limits</string>
+    <string name="toy_name_claude">Claude Limits</string>
+    <string name="toy_summary_claude">Claude.ai usage on the Glyph Matrix. Tap for usage ring, long-press for reset countdown.</string>
+    <string name="activate_toy">Activar Glyph Toy</string>
+    <string name="loading_limits">Consultando límites…</string>
+    <string name="limits_error">No se pudieron obtener los límites</string>
+    <string name="instructions">Guarda tus credenciales OAuth y activa el Glyph Toy.</string>
+    <string name="short_press_hint">Pulsa el Glyph Button: icono Claude con anillo de uso (5h).</string>
+    <string name="long_press_hint">Mantén pulsado: tiempo hasta el reset del límite 5h.</string>
+    <string name="limits_status">Uso 5h: %1$d%% · reset en %2$s</string>
+    <string name="sync_missing">Pega tus credenciales OAuth y pulsa Guardar</string>
+    <string name="token_instructions">En el PC: jq \'.claudeAiOauth\' ~/.claude/.credentials.json — pega el JSON completo (access + refresh). El móvil renueva el token solo.</string>
+    <string name="oauth_credentials_label">Credenciales OAuth (JSON)</string>
+    <string name="save_token">Guardar y probar</string>
+    <string name="clear_token">Borrar credenciales</string>
+    <string name="source_label">Fuente: %1$s</string>
+    <string name="token_expires_at">Token válido hasta: %1$s</string>
+</resources>
