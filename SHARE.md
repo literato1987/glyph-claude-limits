@@ -20,6 +20,6 @@ Setup: paste `jq '.claudeAiOauth' ~/.claude/.credentials.json` into the app once
 
 Built with the official [Glyph Matrix Developer Kit](https://github.com/Nothing-Developer-Programme/GlyphMatrix-Developer-Kit). Not affiliated with Anthropic.
 
-**Published on nothing.community:** https://nothing.community/d/40994-community-glyph-matrix-toys-collection/21 (edited post #291100 — forum blocks consecutive replies)
+**Status:** pendiente — el foro no permite dos replies seguidas del mismo usuario. Publicar como reply nuevo cuando alguien responda en el hilo.
 
-Reply thread: https://nothing.community/d/40994-community-glyph-matrix-toys-collection
+Reply in: https://nothing.community/d/40994-community-glyph-matrix-toys-collection
