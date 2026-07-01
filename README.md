@@ -9,13 +9,17 @@ Built with the [Glyph Matrix Developer Kit](https://github.com/Nothing-Developer
 ## Preview
 
 <p align="center">
-  <img src="docs/preview-ring.png" alt="Claude icon with half-filled usage ring on Glyph Matrix" width="320">
+  <img src="docs/preview-ring.png" alt="Tap: Claude icon + usage ring (~50%)" width="280">
+  &nbsp;
+  <img src="docs/preview-reset.png" alt="Long-press: countdown until reset (4:29)" width="280">
 </p>
+
+<p align="center"><sub><b>Tap</b> · icon + ring &nbsp;·&nbsp; <b>Long-press</b> · reset countdown</sub></p>
 
 - **Tap** Glyph Button → Claude icon + progress ring (% of 5h limit used)
 - **Long-press** → time until reset (`4:29`, `0:45`…)
 
-Regenerate preview: `python scripts/preview_ring.py --percent 50`
+Regenerate ring preview: `python scripts/preview_ring.py --percent 50`
 
 Fetched directly from Anthropic's OAuth usage API on the phone — no Syncthing, no PC bridge.
 
