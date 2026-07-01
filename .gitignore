@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/images/
+/app/build/
