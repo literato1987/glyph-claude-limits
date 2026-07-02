@@ -98,8 +98,19 @@ class ClaudeLimitsService : GlyphMatrixService("Claude-Limits") {
 
     private fun renderProgress(glyphMatrixManager: GlyphMatrixManager) {
         val limits = latestLimits
-        val used = limits.usedPercentage.coerceAtLeast(0)
+        when (limits.status) {
+            LimitsStatus.LOGIN -> {
+                renderResetLine(glyphMatrixManager, "LOGIN")
+                return
+            }
+            LimitsStatus.ERROR -> {
+                renderResetLine(glyphMatrixManager, "ERR")
+                return
+            }
+            LimitsStatus.OK, LimitsStatus.CACHE -> Unit
+        }
 
+        val used = limits.usedPercentage.coerceAtLeast(0)
         val bitmap = MatrixProgressRing.progressBitmap(
             applicationContext,
             R.drawable.claude_icon,
@@ -121,6 +132,17 @@ class ClaudeLimitsService : GlyphMatrixService("Claude-Limits") {
 
     private fun renderReset(glyphMatrixManager: GlyphMatrixManager) {
         val limits = latestLimits
+        when (limits.status) {
+            LimitsStatus.LOGIN -> {
+                renderResetLine(glyphMatrixManager, "LOGIN")
+                return
+            }
+            LimitsStatus.ERROR -> {
+                renderResetLine(glyphMatrixManager, "ERR")
+                return
+            }
+            LimitsStatus.OK, LimitsStatus.CACHE -> Unit
+        }
         if (limits.resetsAtEpochSec <= 0L) {
             renderResetLine(glyphMatrixManager, "--")
             return

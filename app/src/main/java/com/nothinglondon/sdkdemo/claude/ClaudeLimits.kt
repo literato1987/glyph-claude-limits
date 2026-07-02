@@ -1,12 +1,20 @@
 package com.nothinglondon.sdkdemo.claude
 
+enum class LimitsStatus {
+    OK,
+    CACHE,
+    LOGIN,
+    ERROR,
+}
+
 data class ClaudeLimits(
     val usedPercentage: Int,
     val resetsAtEpochSec: Long,
     val sourceLabel: String,
+    val status: LimitsStatus = LimitsStatus.OK,
 ) {
     companion object {
-        val EMPTY = ClaudeLimits(-1, 0L, "none")
+        val EMPTY = ClaudeLimits(-1, 0L, "none", LimitsStatus.ERROR)
     }
 }
 

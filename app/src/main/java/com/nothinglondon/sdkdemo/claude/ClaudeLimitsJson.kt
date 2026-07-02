@@ -37,6 +37,7 @@ object ClaudeLimitsJson {
                 usedPercentage = used.toInt().coerceIn(0, 100),
                 resetsAtEpochSec = resetsAt,
                 sourceLabel = sourceLabel,
+                status = LimitsStatus.CACHE,
             )
         } catch (_: Exception) {
             null
