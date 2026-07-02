@@ -1,6 +1,6 @@
 # Roadmap — Claude Glyph Limits
 
-## Estado actual (v2.2.0)
+## Estado actual (v2.3.0)
 
 **Modo de funcionamiento:** 100 % en el móvil. Sin PC, sin Syncthing, sin ficheros externos.
 
@@ -11,7 +11,7 @@
 | Auto-refresh | `POST claude.ai/v1/oauth/token` ~cada 8 h, solo en el móvil |
 | Caché local | Última consulta OK si falla la red momentáneamente |
 
-**Requisitos:** Phone (3), suscripción Claude.ai, internet al pulsar el Glyph Button, credenciales pegadas una vez.
+**Requisitos:** Phone (3), suscripción Claude.ai, internet al pulsar el Glyph Button, login OAuth una vez en la app.
 
 ## Hecho
 
@@ -21,6 +21,7 @@
 - [x] Almacenamiento cifrado de tokens
 - [x] Publicado en GitHub + nothing.community
 - [x] **v2.2.0:** eliminado fallback Syncthing / ficheros externos (vestigial en Android 15+)
+- [x] **v2.3.0:** login OAuth in-app (Custom Tab + deep link; fallback con código del navegador)
 
 ## Próximo (corto plazo)
 
@@ -29,8 +30,6 @@
 - [ ] Release firmado (keystore) para instalación sin `adb` de debug
 
 ## Explorar (medio plazo)
-
-- [ ] Flujo de login OAuth en la app (WebView / Custom Tab) — pegar JSON del PC solo la primera vez, o nunca
 - [ ] Límite 7 días en long-press alternativo (doble tap o segundo gesto)
 - [ ] Widget / notificación opcional con % 5h (sin depender de Glyph Button)
 - [ ] Investigar si Anthropic permite sesiones OAuth independientes PC↔móvil (evitar invalidación cruzada al refrescar)

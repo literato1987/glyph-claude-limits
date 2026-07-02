@@ -25,7 +25,7 @@ Regenerate ring preview: `python scripts/preview_ring.py --percent 50`
 
 The phone is **fully independent** — no PC, no Syncthing, no background sync.
 
-1. You paste OAuth credentials **once** in the app.
+1. You sign in with Claude **once** in the app (browser OAuth — no PC needed).
 2. The phone stores them encrypted and refreshes the token itself (~every 8 h).
 3. When you use the Glyph Toy, it fetches live usage from Anthropic's API.
 4. If the network fails briefly, it shows the last successful reading (`Fuente: cache`).
@@ -41,18 +41,23 @@ See [ROADMAP.md](ROADMAP.md) for planned improvements.
 
 ## Install (prebuilt APK)
 
-1. Download [`releases/v2.2.0/glyph-claude-limits-v2.2.0.apk`](releases/v2.2.0/glyph-claude-limits-v2.2.0.apk)
-2. `adb install -r glyph-claude-limits-v2.2.0.apk`
-3. Open **Claude Glyph Limits**
-4. On your PC (once), export OAuth JSON:
+1. Download [`releases/v2.3.0/glyph-claude-limits-v2.3.0.apk`](releases/v2.3.0/glyph-claude-limits-v2.3.0.apk)
+2. `adb install -r glyph-claude-limits-v2.3.0.apk`
+3. Open **Claude Glyph Limits** → **Iniciar sesión con Claude**
+4. Authorize in the browser → return to the app (automatic deep link, or paste the code if prompted)
+5. **Activar Glyph Toy** → drag **Claude Limits** to **Active**
+
+After setup the PC can stay off. You only need internet on the phone when checking usage.
+
+<details>
+<summary>Advanced: paste JSON from PC</summary>
 
 ```fish
 jq '.claudeAiOauth' ~/.claude/.credentials.json
 ```
 
-5. Paste into the app → **Guardar y probar** → **Activar Glyph Toy** → drag **Claude Limits** to **Active**
-
-After setup the PC can stay off. You only need internet on the phone when checking usage.
+Open **Opciones avanzadas** in the app and paste the JSON.
+</details>
 
 ## Requires
 
@@ -62,7 +67,7 @@ After setup the PC can stay off. You only need internet on the phone when checki
 
 ### OAuth note (PC + phone)
 
-The phone keeps its **own copy** of tokens and refreshes them independently. If you also use Claude Code on a PC with credentials from the same login, token refresh on one device can occasionally invalidate the other. Re-paste fresh JSON into the app if usage stops updating.
+The phone keeps its **own copy** of tokens and refreshes them independently. If you also use Claude Code on a PC with the same account, token refresh on one device can occasionally invalidate the other. Use **Volver a iniciar sesión** in the app if usage stops updating.
 
 ## Build from source
 

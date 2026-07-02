@@ -12,8 +12,8 @@ android {
         applicationId = "com.juanito.glyphclaude"
         minSdk = 34
         targetSdk = 35
-        versionCode = 10
-        versionName = "2.2.0"
+        versionCode = 11
+        versionName = "2.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("androidx.browser:browser:1.8.0")
     implementation(files("libs/glyphsdk_0606.aar"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

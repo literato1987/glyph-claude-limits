@@ -11,10 +11,10 @@ I built a Glyph Toy for the Nothing Phone (3) that shows your **Claude.ai 5-hour
 - Fetches **directly from Anthropic's OAuth usage API** on the phone
 - Auto-refreshes OAuth tokens — **fully standalone**, no PC / no Syncthing
 
-Setup: paste `jq '.claudeAiOauth' ~/.claude/.credentials.json` into the app once. After that the PC can stay off.
+Setup: tap **Sign in with Claude** in the app (browser OAuth). No PC needed. After that the PC can stay off.
 
 **GitHub:** https://github.com/literato1987/glyph-claude-limits  
-**APK (v2.2.0):** https://github.com/literato1987/glyph-claude-limits/releases/download/v2.2.0/glyph-claude-limits-v2.2.0.apk
+**APK (v2.3.0):** https://github.com/literato1987/glyph-claude-limits/releases/download/v2.3.0/glyph-claude-limits-v2.3.0.apk
 
 **Requires:** Phone (3), Claude Code / Claude.ai OAuth credentials, internet when using the toy.
 
