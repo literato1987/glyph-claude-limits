@@ -85,6 +85,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startOAuthLogin() {
+        OAuthSessionStore.clear(this)
         val session = ClaudeOAuthClient.startSession()
         OAuthSessionStore.save(this, session)
         CustomTabsIntent.Builder()

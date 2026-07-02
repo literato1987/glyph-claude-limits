@@ -38,6 +38,10 @@ object OAuthSessionStore {
         val state = prefs(context).getString(KEY_STATE, null)?.trim().orEmpty()
         val redirect = prefs(context).getString(KEY_REDIRECT, null)?.trim().orEmpty()
         if (verifier.isEmpty() || state.isEmpty() || redirect.isEmpty()) return null
+        if (redirect != ClaudeOAuthConfig.REDIRECT_URI) {
+            clear(context)
+            return null
+        }
         return PendingOAuthSession(verifier, state, redirect)
     }
 
