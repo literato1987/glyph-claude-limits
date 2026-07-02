@@ -1,6 +1,8 @@
 package com.nothinglondon.sdkdemo
 
+import android.content.ClipboardManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -35,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -43,7 +46,6 @@ import com.nothinglondon.sdkdemo.claude.ClaudeAuthManager
 import com.nothinglondon.sdkdemo.claude.ClaudeLimits
 import com.nothinglondon.sdkdemo.claude.ClaudeLimitsProvider
 import com.nothinglondon.sdkdemo.claude.ClaudeOAuthClient
-import com.nothinglondon.sdkdemo.claude.ClaudeOAuthConfig
 import com.nothinglondon.sdkdemo.claude.ClaudeUsageException
 import com.nothinglondon.sdkdemo.claude.OAuthCredentials
 import com.nothinglondon.sdkdemo.claude.OAuthSessionStore
@@ -57,11 +59,8 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
-    private val oauthCallback = mutableStateOf<Uri?>(null)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        captureOAuthCallback(intent)
         enableEdgeToEdge()
         setContent {
             NothingAndroidSDKDemoTheme {
@@ -70,7 +69,6 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                         onActivateToy = ::openGlyphToyManager,
                         onStartOAuthLogin = ::startOAuthLogin,
-                        onStartOAuthLoginManual = ::startOAuthLoginManual,
                         refreshLimits = { ClaudeLimitsProvider.refresh(this) },
                         hasCredentials = { TokenStore.hasCredentials(this) },
                         loadCredentials = { TokenStore.loadCredentials(this) },
@@ -79,8 +77,6 @@ class MainActivity : ComponentActivity() {
                         completeAuthorization = { code, state ->
                             ClaudeAuthManager.completeAuthorization(this, code, state)
                         },
-                        oauthCallback = oauthCallback.value,
-                        onOAuthCallbackHandled = { oauthCallback.value = null },
                         hasPendingOAuth = { OAuthSessionStore.load(this) != null },
                     )
                 }
@@ -88,36 +84,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-        captureOAuthCallback(intent)
-    }
-
-    private fun captureOAuthCallback(intent: Intent?) {
-        val data = intent?.data ?: return
-        if (data.scheme == "com.juanito.glyphclaude" && data.host == "oauth") {
-            oauthCallback.value = data
-        }
-    }
-
     private fun startOAuthLogin() {
         val session = ClaudeOAuthClient.startSession()
         OAuthSessionStore.save(this, session)
-        openAuthorizationUrl(ClaudeOAuthClient.buildAuthorizationUrl(session))
-    }
-
-    private fun startOAuthLoginManual() {
-        val session = ClaudeOAuthClient.startSession(ClaudeOAuthConfig.PLATFORM_REDIRECT_URI)
-        OAuthSessionStore.save(this, session)
-        openAuthorizationUrl(ClaudeOAuthClient.buildAuthorizationUrl(session))
-    }
-
-    private fun openAuthorizationUrl(url: String) {
         CustomTabsIntent.Builder()
             .setShowTitle(true)
             .build()
-            .launchUrl(this, Uri.parse(url))
+            .launchUrl(this, Uri.parse(ClaudeOAuthClient.buildAuthorizationUrl(session)))
     }
 
     private fun clearCredentials() {
@@ -141,15 +114,12 @@ fun ClaudeLimitsScreen(
     modifier: Modifier = Modifier,
     onActivateToy: () -> Unit,
     onStartOAuthLogin: () -> Unit,
-    onStartOAuthLoginManual: () -> Unit,
     refreshLimits: suspend () -> ClaudeLimits,
     hasCredentials: () -> Boolean,
     loadCredentials: () -> OAuthCredentials?,
     saveCredentials: (OAuthCredentials) -> Unit,
     clearCredentials: () -> Unit,
     completeAuthorization: suspend (String, String?) -> OAuthCredentials,
-    oauthCallback: Uri?,
-    onOAuthCallbackHandled: () -> Unit,
     hasPendingOAuth: () -> Boolean,
 ) {
     var limits by remember { mutableStateOf(ClaudeLimits.EMPTY) }
@@ -160,8 +130,9 @@ fun ClaudeLimitsScreen(
     var configured by remember { mutableStateOf(hasCredentials()) }
     var expiresLabel by remember { mutableStateOf<String?>(null) }
     var showAdvanced by remember { mutableStateOf(false) }
-    var awaitingManualCode by remember { mutableStateOf(hasPendingOAuth()) }
+    var awaitingCode by remember { mutableStateOf(hasPendingOAuth() || !hasCredentials()) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val timeFormat = remember { SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()) }
     val scrollState = rememberScrollState()
 
@@ -199,7 +170,7 @@ fun ClaudeLimitsScreen(
             try {
                 completeAuthorization(code, state)
                 configured = hasCredentials()
-                awaitingManualCode = false
+                awaitingCode = false
                 authCodeInput = ""
                 reload()
             } catch (e: ClaudeUsageException) {
@@ -212,17 +183,16 @@ fun ClaudeLimitsScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        reload()
+    fun pasteFromClipboard() {
+        val clip = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val text = clip.primaryClip?.getItemAt(0)?.text?.toString()?.trim().orEmpty()
+        if (text.isNotEmpty()) {
+            authCodeInput = text
+        }
     }
 
-    LaunchedEffect(oauthCallback) {
-        val uri = oauthCallback ?: return@LaunchedEffect
-        val code = uri.getQueryParameter("code")
-        if (!code.isNullOrBlank()) {
-            finishAuthorization(code, uri.getQueryParameter("state"))
-            onOAuthCallbackHandled()
-        }
+    LaunchedEffect(Unit) {
+        reload()
     }
 
     Column(
@@ -244,19 +214,13 @@ fun ClaudeLimitsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
             Button(
-                onClick = onStartOAuthLogin,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = stringResource(R.string.login_with_claude))
-            }
-            OutlinedButton(
                 onClick = {
-                    awaitingManualCode = true
-                    onStartOAuthLoginManual()
+                    awaitingCode = true
+                    onStartOAuthLogin()
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(text = stringResource(R.string.login_with_browser_code))
+                Text(text = stringResource(R.string.login_with_claude))
             }
         } else {
             Text(
@@ -264,14 +228,17 @@ fun ClaudeLimitsScreen(
                 style = MaterialTheme.typography.bodySmall,
             )
             OutlinedButton(
-                onClick = onStartOAuthLogin,
+                onClick = {
+                    awaitingCode = true
+                    onStartOAuthLogin()
+                },
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = stringResource(R.string.relogin_with_claude))
             }
         }
 
-        AnimatedVisibility(awaitingManualCode || authCodeInput.isNotBlank()) {
+        AnimatedVisibility(awaitingCode || authCodeInput.isNotBlank() || hasPendingOAuth()) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = stringResource(R.string.auth_code_instructions),
@@ -285,6 +252,12 @@ fun ClaudeLimitsScreen(
                     minLines = 1,
                     maxLines = 3,
                 )
+                OutlinedButton(
+                    onClick = { pasteFromClipboard() },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(text = stringResource(R.string.paste_auth_code))
+                }
                 Button(
                     onClick = {
                         val (code, state) = ClaudeOAuthClient.parseAuthorizationResponse(authCodeInput)
@@ -331,6 +304,7 @@ fun ClaudeLimitsScreen(
                         }
                         saveCredentials(parsed)
                         configured = hasCredentials()
+                        awaitingCode = false
                         reload()
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -349,7 +323,7 @@ fun ClaudeLimitsScreen(
                 configured = false
                 limits = ClaudeLimits.EMPTY
                 expiresLabel = null
-                awaitingManualCode = false
+                awaitingCode = true
             }) {
                 Text(text = stringResource(R.string.clear_token))
             }

@@ -24,11 +24,11 @@ object ClaudeOAuthClient {
         }
     }
 
-    fun startSession(redirectUri: String = ClaudeOAuthConfig.REDIRECT_URI): PendingOAuthSession {
+    fun startSession(): PendingOAuthSession {
         return PendingOAuthSession(
             verifier = ClaudePkce.generateVerifier(),
             state = ClaudePkce.generateState(),
-            redirectUri = redirectUri,
+            redirectUri = ClaudeOAuthConfig.REDIRECT_URI,
         )
     }
 
@@ -38,22 +38,23 @@ object ClaudeOAuthClient {
         session: PendingOAuthSession,
     ): OAuthCredentials = withContext(Dispatchers.IO) {
         if (state != session.state) {
-            throw ClaudeUsageException(400, "State OAuth no coincide")
+            throw ClaudeUsageException(400, "State OAuth no coincide — vuelve a iniciar sesión")
         }
-        postToken(
-            buildString {
-                append("grant_type=authorization_code")
-                append("&client_id=").append(encode(ClaudeOAuthConfig.CLIENT_ID))
-                append("&code=").append(encode(code.trim()))
-                append("&redirect_uri=").append(encode(session.redirectUri))
-                append("&code_verifier=").append(encode(session.verifier))
-                append("&state=").append(encode(state))
-            },
-        )
+        val trimmedCode = code.trim()
+        try {
+            exchangeCodeForm(trimmedCode, state, session)
+        } catch (first: ClaudeUsageException) {
+            try {
+                exchangeCodeJson(trimmedCode, state, session)
+            } catch (_: Exception) {
+                throw first
+            }
+        }
     }
 
     suspend fun refresh(refreshToken: String): OAuthCredentials = withContext(Dispatchers.IO) {
-        postToken(
+        postForm(
+            ClaudeOAuthConfig.TOKEN_URL,
             buildString {
                 append("grant_type=refresh_token")
                 append("&client_id=").append(encode(ClaudeOAuthConfig.CLIENT_ID))
@@ -73,34 +74,89 @@ object ClaudeOAuthClient {
         }
     }
 
-    private suspend fun postToken(
+    private fun exchangeCodeForm(
+        code: String,
+        state: String,
+        session: PendingOAuthSession,
+    ): OAuthCredentials {
+        return postForm(
+            ClaudeOAuthConfig.TOKEN_URL,
+            buildString {
+                append("grant_type=authorization_code")
+                append("&client_id=").append(encode(ClaudeOAuthConfig.CLIENT_ID))
+                append("&code=").append(encode(code))
+                append("&redirect_uri=").append(encode(session.redirectUri))
+                append("&code_verifier=").append(encode(session.verifier))
+                append("&state=").append(encode(state))
+            },
+        )
+    }
+
+    private fun exchangeCodeJson(
+        code: String,
+        state: String,
+        session: PendingOAuthSession,
+    ): OAuthCredentials {
+        val body = JSONObject()
+            .put("grant_type", "authorization_code")
+            .put("client_id", ClaudeOAuthConfig.CLIENT_ID)
+            .put("code", code)
+            .put("redirect_uri", session.redirectUri)
+            .put("code_verifier", session.verifier)
+            .put("state", state)
+            .toString()
+        return postJson(ClaudeOAuthConfig.TOKEN_URL_CONSOLE, body)
+    }
+
+    private fun postForm(
+        tokenUrl: String,
         body: String,
         previousRefreshToken: String? = null,
-    ): OAuthCredentials = withContext(Dispatchers.IO) {
-        val connection = (URL(ClaudeOAuthConfig.TOKEN_URL).openConnection() as HttpURLConnection).apply {
+    ): OAuthCredentials {
+        val connection = openConnection(tokenUrl, "application/x-www-form-urlencoded")
+        try {
+            connection.outputStream.use { it.write(body.toByteArray()) }
+            return readTokenResponse(connection, previousRefreshToken)
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    private fun postJson(tokenUrl: String, body: String): OAuthCredentials {
+        val connection = openConnection(tokenUrl, "application/json")
+        try {
+            connection.outputStream.use { it.write(body.toByteArray()) }
+            return readTokenResponse(connection, null)
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    private fun openConnection(tokenUrl: String, contentType: String): HttpURLConnection {
+        return (URL(tokenUrl).openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
             connectTimeout = 15_000
             readTimeout = 15_000
             doOutput = true
-            setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+            setRequestProperty("Content-Type", contentType)
             setRequestProperty("Accept", "application/json, text/plain, */*")
             setRequestProperty("User-Agent", ClaudeOAuthConfig.USER_AGENT)
         }
+    }
 
-        try {
-            connection.outputStream.use { it.write(body.toByteArray()) }
-            val status = connection.responseCode
-            val raw = when {
-                status in 200..299 -> connection.inputStream.bufferedReader().use { it.readText() }
-                else -> connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
-            }
-            if (status !in 200..299) {
-                throw ClaudeUsageException(status, parseTokenError(raw, status))
-            }
-            parseTokenResponse(raw, previousRefreshToken)
-        } finally {
-            connection.disconnect()
+    private fun readTokenResponse(
+        connection: HttpURLConnection,
+        previousRefreshToken: String?,
+    ): OAuthCredentials {
+        val status = connection.responseCode
+        val raw = when {
+            status in 200..299 -> connection.inputStream.bufferedReader().use { it.readText() }
+            else -> connection.errorStream?.bufferedReader()?.use { it.readText() }.orEmpty()
         }
+        if (status !in 200..299) {
+            throw ClaudeUsageException(status, parseTokenError(raw, status))
+        }
+        return parseTokenResponse(raw, previousRefreshToken)
     }
 
     private fun parseTokenResponse(raw: String, previousRefreshToken: String?): OAuthCredentials {
