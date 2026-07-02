@@ -9,7 +9,7 @@
     <string name="short_press_hint">Pulsa el Glyph Button: icono Claude con anillo de uso (5h).</string>
     <string name="long_press_hint">Mantén pulsado: tiempo hasta el reset del límite 5h.</string>
     <string name="limits_status">Uso 5h: %1$d%% · reset en %2$s</string>
-    <string name="sync_missing">Pega tus credenciales OAuth y pulsa Guardar</string>
+    <string name="credentials_missing">Pega tus credenciales OAuth y pulsa Guardar</string>
     <string name="token_instructions">En el PC: jq \'.claudeAiOauth\' ~/.claude/.credentials.json — pega el JSON completo (access + refresh). El móvil renueva el token solo.</string>
     <string name="oauth_credentials_label">Credenciales OAuth (JSON)</string>
     <string name="save_token">Guardar y probar</string>

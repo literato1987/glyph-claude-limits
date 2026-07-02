@@ -119,8 +119,8 @@ fun ClaudeLimitsScreen(
         }
     }
 
-    LaunchedEffect(configured) {
-        if (configured) reload()
+    LaunchedEffect(Unit) {
+        reload()
     }
 
     Column(
@@ -209,7 +209,7 @@ fun ClaudeLimitsScreen(
 
             else -> {
                 Text(
-                    text = errorMessage ?: stringResource(R.string.sync_missing),
+                    text = errorMessage ?: stringResource(R.string.credentials_missing),
                     color = MaterialTheme.colorScheme.error,
                 )
             }

@@ -21,27 +21,38 @@ Built with the [Glyph Matrix Developer Kit](https://github.com/Nothing-Developer
 
 Regenerate ring preview: `python scripts/preview_ring.py --percent 50`
 
-Fetched directly from Anthropic's OAuth usage API on the phone — no Syncthing, no PC bridge.
+## How it works
+
+The phone is **fully independent** — no PC, no Syncthing, no background sync.
+
+1. You paste OAuth credentials **once** in the app.
+2. The phone stores them encrypted and refreshes the token itself (~every 8 h).
+3. When you use the Glyph Toy, it fetches live usage from Anthropic's API.
+4. If the network fails briefly, it shows the last successful reading (`Fuente: cache`).
+
+See [ROADMAP.md](ROADMAP.md) for planned improvements.
 
 ## Features
 
 - **Live usage** from `GET https://api.anthropic.com/api/oauth/usage`
-- **Auto token refresh** via `POST https://claude.ai/v1/oauth/token` (~every 8h)
-- **On-demand fetch** — only when the Glyph Toy is active (connect / long-press / stale AOD), not in background
+- **Auto token refresh** via `POST https://claude.ai/v1/oauth/token`
+- **On-demand fetch** — only when the Glyph Toy is active (connect / long-press / stale AOD)
 - **Encrypted credential storage** on device (`accessToken` + `refreshToken`)
 
 ## Install (prebuilt APK)
 
-1. Download [`releases/v2.1.1/glyph-claude-limits-v2.1.1.apk`](releases/v2.1.1/glyph-claude-limits-v2.1.1.apk)
-2. `adb install -r glyph-claude-limits-v2.1.1.apk`
+1. Download [`releases/v2.2.0/glyph-claude-limits-v2.2.0.apk`](releases/v2.2.0/glyph-claude-limits-v2.2.0.apk)
+2. `adb install -r glyph-claude-limits-v2.2.0.apk`
 3. Open **Claude Glyph Limits**
-4. Paste OAuth JSON from your PC:
+4. On your PC (once), export OAuth JSON:
 
 ```fish
 jq '.claudeAiOauth' ~/.claude/.credentials.json
 ```
 
-5. Tap **Guardar y probar** → **Activar Glyph Toy** → drag **Claude Limits** to **Active**
+5. Paste into the app → **Guardar y probar** → **Activar Glyph Toy** → drag **Claude Limits** to **Active**
+
+After setup the PC can stay off. You only need internet on the phone when checking usage.
 
 ## Requires
 
@@ -49,7 +60,9 @@ jq '.claudeAiOauth' ~/.claude/.credentials.json
 - Claude.ai / Claude Code subscription (OAuth credentials)
 - Internet when using the toy
 
-> The phone keeps its **own copy** of OAuth tokens and refreshes them independently. If Claude on your PC stops authenticating after a while, run `claude` once on the PC to re-sync credentials there.
+### OAuth note (PC + phone)
+
+The phone keeps its **own copy** of tokens and refreshes them independently. If you also use Claude Code on a PC with credentials from the same login, token refresh on one device can occasionally invalidate the other. Re-paste fresh JSON into the app if usage stops updating.
 
 ## Build from source
 

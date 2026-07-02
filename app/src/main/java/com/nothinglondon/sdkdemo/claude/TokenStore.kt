@@ -52,6 +52,6 @@ object TokenStore {
 
     fun loadCachedLimits(context: Context): ClaudeLimits {
         val json = prefs(context).getString(KEY_CACHED_LIMITS, null) ?: return ClaudeLimits.EMPTY
-        return ClaudeLimitsFile.parseJson(json) ?: ClaudeLimits.EMPTY
+        return ClaudeLimitsJson.parse(json, sourceLabel = "cache") ?: ClaudeLimits.EMPTY
     }
 }

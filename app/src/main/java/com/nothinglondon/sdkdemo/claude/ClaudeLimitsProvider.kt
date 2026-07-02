@@ -24,14 +24,12 @@ object ClaudeLimitsProvider {
                         }
                     }
                 }
-                TokenStore.loadCachedLimits(context).takeIf { it.usedPercentage >= 0 }?.let { return it }
             } catch (_: Exception) {
-                TokenStore.loadCachedLimits(context).takeIf { it.usedPercentage >= 0 }?.let { return it }
             }
         }
 
-        return ClaudeLimitsFile.refresh(context).takeIf { it.usedPercentage >= 0 }
-            ?: TokenStore.loadCachedLimits(context)
+        return TokenStore.loadCachedLimits(context).takeIf { it.usedPercentage >= 0 }
+            ?: ClaudeLimits.EMPTY
     }
 
     private fun cacheLimits(context: Context, limits: ClaudeLimits) {

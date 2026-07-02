@@ -12,8 +12,8 @@ android {
         applicationId = "com.juanito.glyphclaude"
         minSdk = 34
         targetSdk = 35
-        versionCode = 7
-        versionName = "2.1.1"
+        versionCode = 10
+        versionName = "2.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
