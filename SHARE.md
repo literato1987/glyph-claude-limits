@@ -20,6 +20,9 @@ Setup: tap **Sign in with Claude** in the app (browser OAuth). No PC needed. Aft
 
 Built with the official [Glyph Matrix Developer Kit](https://github.com/Nothing-Developer-Programme/GlyphMatrix-Developer-Kit). Not affiliated with Anthropic.
 
-**Status:** pendiente — publicar con VirusTotal + Koodous (normas del foro).
+**VirusTotal:** https://www.virustotal.com/gui/file/dc6d93084d00850756d7bfe084acaacfc0e0488c642777dee0cfe7d29b5211c4
+**Koodous:** https://koodous.com/apks/dc6d93084d00850756d7bfe084acaacfc0e0488c642777dee0cfe7d29b5211c4
+
+**Status:** publicado en nothing.community (julio 2026).
 
 Reply in: https://nothing.community/d/40994-community-glyph-matrix-toys-collection
