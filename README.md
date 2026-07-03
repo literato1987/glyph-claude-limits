@@ -41,8 +41,8 @@ See [ROADMAP.md](ROADMAP.md) for planned improvements.
 
 ## Install (prebuilt APK)
 
-1. Download [`releases/v2.3.0/glyph-claude-limits-v2.3.0.apk`](releases/v2.3.0/glyph-claude-limits-v2.3.0.apk)
-2. `adb install -r glyph-claude-limits-v2.3.0.apk`
+1. Download [`releases/v2.3.3/glyph-claude-limits-v2.3.3.apk`](releases/v2.3.3/glyph-claude-limits-v2.3.3.apk)
+2. `adb install -r glyph-claude-limits-v2.3.3.apk`
 3. Open **Claude Glyph Limits** → **Iniciar sesión con Claude**
 4. Authorize in the browser → return to the app (automatic deep link, or paste the code if prompted)
 5. **Activar Glyph Toy** → drag **Claude Limits** to **Active**
